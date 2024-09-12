@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <style>
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Response</h1>
+    <p><strong>Command:</strong> {{ command }}</p>
+    <p><strong>Response:</strong></p>
+    <pre><code>{{ response|safe }}</code></pre>
+
+    <!-- Form to submit another command -->
+    <h2>Submit a New Command</h2>
+    <form action="/command" method="post">
+        <input type="text" name="command" placeholder="Enter your command" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <a href="/">Go back</a>
+    <a href="/history">View History</a>
+
+    <!-- Highlight.js script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
