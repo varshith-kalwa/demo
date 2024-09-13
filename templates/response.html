@@ -6,32 +6,122 @@
     <title>Response</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+
         pre {
             background-color: #f5f5f5;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
             overflow-x: auto;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
+
         code {
             font-family: monospace;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: fit-content; /* Ensure button adjusts to text size */
+            align-self: center;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #response-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <h1>Response</h1>
-    <p><strong>Command:</strong> {{ command }}</p>
-    <p><strong>Response:</strong></p>
-    <pre><code>{{ response|safe }}</code></pre>
 
-    <!-- Form to submit another command -->
-    <h2>Submit a New Command</h2>
-    <form action="/command" method="post">
-        <input type="text" name="command" placeholder="Enter your command" required>
-        <button type="submit">Submit</button>
-    </form>
+    <div id="response-container">
+        <p><strong>Command:</strong> {{ command }}</p>
+        <p><strong>Response:</strong></p>
+        <pre><code>{{ response|safe }}</code></pre>
 
-    <a href="/">Go back</a>
-    <a href="/history">View History</a>
+        <!-- Form to submit another command -->
+        <h2>Submit a New Command</h2>
+        <form action="/command" method="post">
+            <input type="text" name="command" placeholder="Enter your command" required>
+            <button type="submit">Submit</button>
+        </form>
+
+        <div>
+            <a href="/">Go back</a>
+            <a href="/history">View History</a>
+        </div>
+    </div>
 
     <!-- Highlight.js script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>

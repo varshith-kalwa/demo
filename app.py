@@ -9,7 +9,7 @@ from collections import deque
 app = Flask(__name__)
 
 # Configure API Key directly
-api_key = "AIzaSyBIoZt-BpVa456nk8ifnrMO6wl4z7Kv7OE"
+api_key = "AIzaSyAmXhUU6pMMx5UQOmrf1ynt51rBIBsMBrw"
 genai.configure(api_key=api_key)
 
 # Initialize history list
