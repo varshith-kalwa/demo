@@ -31,8 +31,10 @@
             background-color: #f5f5f5;
             padding: 15px;
             border-radius: 5px;
-            overflow-x: auto;
+            overflow: auto;
             width: 80%;
+            
+            max-height: 500px;
             max-width: 600px;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
@@ -51,14 +53,19 @@
         }
 
         input[type="text"] {
-            width: 100%;
+            
+            width: 90%; /* Set width to 50% of the page */
+            max-width: 600px; /* Set a maximum width for larger         screens */
+            min-width: 300px; /* Set a minimum width for smaller         screens */
             padding: 15px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-bottom: 10px;
+            margin: 0 auto 10px; /* Center horizontally using margin         auto */
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s;
+            resize: vertical; /* Allow resizing vertically */
+            min-height: 150px; /* Set minimum height for the input */
         }
 
         input[type="text"]:focus {
@@ -99,6 +106,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
+            
         }
     </style>
 </head>
@@ -106,7 +114,8 @@
     <h1>Response</h1>
 
     <div id="response-container">
-        <p><strong>Command:</strong> {{ command }}</p>
+        <p><strong>Command:</strong> </p>
+        <pre><code>{{ command }}</code></pre>
         <p><strong>Response:</strong></p>
         <pre><code>{{ response|safe }}</code></pre>
 
