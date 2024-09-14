@@ -26,7 +26,7 @@ def ask_gemini(prompt):
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content([prompt])
         # Extract text and ensure it's a string
-        return response.text.strip()[:10000]  # Allow longer responses
+        return response.text.strip()[:1000000]  # Allow longer responses
     except Exception as e:
         speak("Sorry, I couldn't process that with Gemini.")
         print(f"Error: {e}")
