@@ -138,3 +138,143 @@
     <script>hljs.highlightAll();</script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #response-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 100px; /* Prevent content from being hidden behind the fixed textarea */
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow: auto;
+            width: 80%;
+            max-height: 400px;
+            max-width: 600px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* Enable text wrapping */
+            word-wrap: break-word; /* Break long words */
+        }
+
+        code {
+            font-family: monospace;
+        }
+
+        form {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+        }
+
+        textarea {
+            width: 80%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 15px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Ensure the body has enough space to scroll */
+        body {
+            padding-bottom: 150px; /* Add padding to ensure the last content isn't cut off */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Response</h1>
+
+    <div id="response-container">
+        <p><strong>Command:</strong> </p>
+        <pre><code>{{ command }}</code></pre>
+        <p><strong>Response:</strong></p>
+        <pre><code>{{ response|safe }}</code></pre>
+
+        <div>
+            <a href="/">Go back</a>
+            <a href="/history">View History</a>
+        </div>
+    </div>
+
+    <!-- Fixed form at the bottom -->
+    <form action="/command" method="post">
+        <textarea name="command" placeholder="Enter your command" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Highlight.js script for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
