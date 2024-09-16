@@ -1,43 +1,21 @@
 from flask import Flask, request, render_template
+from flask_pymongo import PyMongo
 import google.generativeai as genai
-from collections import deque
+from datetime import datetime
+import traceback
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Configure API Key directly
-api_key = "AIzaSyAmXhUU6pMMx5UQOmrf1ynt51rBIBsMBrw"
+# Configure MongoDB (Atlas)
+app.config['MONGO_URI'] = "mongodb+srv://moviebees23:BkAYbrte8weSeHh6@cluster0.i9gnzln.mongodb.net/chat-app-db?retryWrites=true&w=majority&appName=Cluster0"  # MongoDB Atlas connection string
+
+# Initialize PyMongo
+mongo = PyMongo(app)
+
+# Google Gemini API setup
+api_key = "AIzaSyAmXhUU6pMMx5UQOmrf1ynt51rBIBsMBrw"  # Replace with your actual API key
 genai.configure(api_key=api_key)
-
-# Limit the history to the last 10 interactions
-history = deque(maxlen=10)
-
-def prepare_prompt(history, prompt):
-    """
-    Prepare the full prompt with the complete history and the new command.
-    """
-    history_text = "\n".join([f"User: {item[0]}\nAI: {item[1]}" for item in history])
-    full_prompt = f"{history_text}\nUser: {prompt}\nAI:"
-    return full_prompt
-
-def ask_gemini(prompt, history):
-    try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        
-        # Prepare the full prompt with the complete history and the new command
-        full_prompt = prepare_prompt(history, prompt)
-        
-        # Optionally, you could split the prompt if it becomes too large for the model
-        # Here we will not truncate but handle large prompts based on API limits
-        
-        # Send the request to the Gemini model
-        response = model.generate_content([full_prompt])
-        
-        # Extract the text response from the Gemini model
-        return response.text.strip()
-    except Exception as e:
-        print(f"Error: {e}")
-        return "There was an error processing your request."
 
 @app.route('/')
 def index():
@@ -45,21 +23,70 @@ def index():
 
 @app.route('/command', methods=['POST'])
 def command():
-    user_command = request.form['command']
-    
-    # Get the AI response using the Gemini model
-    response_text = ask_gemini(user_command, history)
+    try:
+        user_command = request.form['command']
 
-    # Append the command and response to the history
-    history.append((user_command, response_text))
+        # Check if mongo.db is initialized
+        if mongo is None or mongo.db is None:
+            print("mongo or mongo.db is None")
+            return "MongoDB is not initialized properly."
 
-    # Render the response template with the command and the AI's response
-    return render_template('response.html', command=user_command, response=response_text)
+        # Retrieve all previous commands and responses from MongoDB
+        history_entries = mongo.db.history.find().sort('timestamp', -1)
+        history_context = "\n".join([f"User: {entry['user_command']}\nAI: {entry['ai_response']}" for entry in history_entries])
+
+        # Prepare the full prompt with all previous history and the new command
+        full_prompt = f"Previous interactions:\n{history_context}\n\nUser: {user_command}\nAI:"
+
+        # Get the AI response using the Gemini model
+        response_text = ask_gemini(full_prompt)
+
+        # Store the new command and response in MongoDB
+        mongo.db.history.insert_one({
+            'user_command': user_command,
+            'ai_response': response_text,
+            'timestamp': datetime.utcnow()
+        })
+
+        # If the document count exceeds 20, delete all entries
+        history_count = mongo.db.history.count_documents({})
+        if history_count > 20:
+            mongo.db.history.delete_many({})
+
+        # Retrieve updated history
+        history_entries = mongo.db.history.find().sort('timestamp', -1).limit(20)
+        return render_template('response.html', command=user_command, response=response_text, history=history_entries)
+
+    except Exception as e:
+        print("Exception occurred:", e)
+        print("Traceback:", traceback.format_exc())
+        return "There was an error processing your request."
 
 @app.route('/history')
 def get_history():
-    # Render the history template with the current conversation history
-    return render_template('history.html', history=history)
+    try:
+        if mongo is None or mongo.db is None:
+            print("mongo or mongo.db is None")
+            return "MongoDB is not initialized properly."
+
+        # Retrieve history from MongoDB
+        history_entries = mongo.db.history.find().sort('timestamp', -1)
+        return render_template('history.html', history=history_entries)
+    except Exception as e:
+        print("Error retrieving history:", e)
+        print("Traceback:", traceback.format_exc())
+        return "There was an error retrieving history."
+
+def ask_gemini(prompt):
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content([prompt])
+        return response.text.strip()
+    except Exception as e:
+        print("Gemini API Exception:", e)
+        print("Traceback:", traceback.format_exc())
+        return "There was an error processing your request."
 
 if __name__ == '__main__':
+    # Run the Flask app
     app.run(debug=True)
