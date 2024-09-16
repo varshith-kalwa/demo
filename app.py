@@ -1,9 +1,6 @@
-from flask import Flask, request, jsonify, render_template
-import subprocess
-from gtts import gTTS
-from tempfile import NamedTemporaryFile
+from flask import Flask, request, render_template
 import google.generativeai as genai
-from collections import deque 
+from collections import deque
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -12,25 +9,35 @@ app = Flask(__name__)
 api_key = "AIzaSyAmXhUU6pMMx5UQOmrf1ynt51rBIBsMBrw"
 genai.configure(api_key=api_key)
 
-# Initialize history list
-history = deque(maxlen=20)
+# Limit the history to the last 10 interactions
+history = deque(maxlen=10)
 
-def speak(text):
-    with NamedTemporaryFile(delete=True) as fp:
-        tts = gTTS(text=text, lang='en')
-        tts.save(fp.name + ".mp3")
-        subprocess.run(["mpg123", fp.name + ".mp3"], check=True)
+def prepare_prompt(history, prompt):
+    """
+    Prepare the full prompt with the complete history and the new command.
+    """
+    history_text = "\n".join([f"User: {item[0]}\nAI: {item[1]}" for item in history])
+    full_prompt = f"{history_text}\nUser: {prompt}\nAI:"
+    return full_prompt
 
-def ask_gemini(prompt):
+def ask_gemini(prompt, history):
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content([prompt])
-        # Extract text and ensure it's a string
-        return response.text.strip()[:1000000]  # Allow longer responses
+        
+        # Prepare the full prompt with the complete history and the new command
+        full_prompt = prepare_prompt(history, prompt)
+        
+        # Optionally, you could split the prompt if it becomes too large for the model
+        # Here we will not truncate but handle large prompts based on API limits
+        
+        # Send the request to the Gemini model
+        response = model.generate_content([full_prompt])
+        
+        # Extract the text response from the Gemini model
+        return response.text.strip()
     except Exception as e:
-        speak("Sorry, I couldn't process that with Gemini.")
         print(f"Error: {e}")
-        return "I encountered an issue."
+        return "There was an error processing your request."
 
 @app.route('/')
 def index():
@@ -39,44 +46,19 @@ def index():
 @app.route('/command', methods=['POST'])
 def command():
     user_command = request.form['command']
-    command_text = user_command
-    response_text = ""
+    
+    # Get the AI response using the Gemini model
+    response_text = ask_gemini(user_command, history)
 
-    if 'open' in user_command:
-        if 'chrome' in user_command:
-            app = 'google-chrome'
-            response_text = f"Opening {app}"
-            subprocess.Popen([app])
-        elif 'spotify' in user_command:
-            app = 'spotify'
-            response_text = f"Opening {app}"
-            subprocess.Popen([app])
-        else:
-            app = user_command.replace('open', '').strip()
-            response_text = f"Opening {app}"
-            subprocess.Popen([app])
-    elif 'close' in user_command:
-        app = user_command.replace('close', '').strip()
-        response_text = f"Closing {app}"
-        subprocess.Popen(["pkill", app])
-    elif 'say' in user_command:
-        response_text = user_command.replace('say', '').strip()
-    elif 'shutdown' in user_command:
-        response_text = "Shutting down the system."
-        subprocess.Popen(["sudo", "shutdown", "now"])
-    elif 'restart' in user_command:
-        response_text = "Restarting the system."
-        subprocess.Popen(["sudo", "reboot"])
-    else:
-        response_text = ask_gemini(user_command)
+    # Append the command and response to the history
+    history.append((user_command, response_text))
 
-    history.append((command_text, response_text))
-
-    return render_template('response.html', command=command_text, response=response_text)
-
+    # Render the response template with the command and the AI's response
+    return render_template('response.html', command=user_command, response=response_text)
 
 @app.route('/history')
 def get_history():
+    # Render the history template with the current conversation history
     return render_template('history.html', history=history)
 
 if __name__ == '__main__':

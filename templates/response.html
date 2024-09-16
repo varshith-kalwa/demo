@@ -13,18 +13,22 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
         }
 
         h1 {
             color: #333;
+            text-align: center;
+            margin-top: 20px;
         }
 
-        p {
-            font-size: 18px;
-            color: #555;
+        #response-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 100px; /* Prevent content from being hidden behind the fixed textarea */
         }
 
         pre {
@@ -33,11 +37,12 @@
             border-radius: 5px;
             overflow: auto;
             width: 80%;
-            
-            max-height: 500px;
+            max-height: 400px;
             max-width: 600px;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            white-space: pre-wrap; /* Enable text wrapping */
+            word-wrap: break-word; /* Break long words */
         }
 
         code {
@@ -45,36 +50,36 @@
         }
 
         form {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
-            flex-direction: column;
-            width: 80%;
-            max-width: 600px;
-            margin-bottom: 20px;
+            justify-content: center;
         }
 
-        input[type="text"] {
-            
-            width: 90%; /* Set width to 50% of the page */
-            max-width: 600px; /* Set a maximum width for larger         screens */
-            min-width: 300px; /* Set a minimum width for smaller         screens */
+        textarea {
+            width: 80%;
+            max-width: 600px;
             padding: 15px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin: 0 auto 10px; /* Center horizontally using margin         auto */
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            transition: border-color 0.3s;
-            resize: vertical; /* Allow resizing vertically */
-            min-height: 150px; /* Set minimum height for the input */
+            min-height: 100px;
+            resize: vertical;
         }
 
-        input[type="text"]:focus {
+        textarea:focus {
             border-color: #007bff;
             outline: none;
         }
 
         button {
-            padding: 15px;
+            padding: 15px 20px;
             font-size: 16px;
             color: #fff;
             background-color: #007bff;
@@ -82,8 +87,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
-            width: fit-content; /* Ensure button adjusts to text size */
-            align-self: center;
+            margin-left: 10px;
         }
 
         button:hover {
@@ -101,16 +105,14 @@
             text-decoration: underline;
         }
 
-        #response-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            
+        /* Ensure the body has enough space to scroll */
+        body {
+            padding-bottom: 150px; /* Add padding to ensure the last content isn't cut off */
         }
     </style>
 </head>
 <body>
+
     <h1>Response</h1>
 
     <div id="response-container">
@@ -119,20 +121,19 @@
         <p><strong>Response:</strong></p>
         <pre><code>{{ response|safe }}</code></pre>
 
-        <!-- Form to submit another command -->
-        <h2>Submit a New Command</h2>
-        <form action="/command" method="post">
-            <input type="text" name="command" placeholder="Enter your command" required>
-            <button type="submit">Submit</button>
-        </form>
-
         <div>
             <a href="/">Go back</a>
             <a href="/history">View History</a>
         </div>
     </div>
 
-    <!-- Highlight.js script -->
+    <!-- Fixed form at the bottom -->
+    <form action="/command" method="post">
+        <textarea name="command" placeholder="Enter your command" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Highlight.js script for syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
 </body>
